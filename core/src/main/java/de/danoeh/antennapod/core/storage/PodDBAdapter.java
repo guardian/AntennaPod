@@ -35,6 +35,8 @@ import de.danoeh.antennapod.core.feed.Feed;
 import de.danoeh.antennapod.core.feed.FeedItem;
 import de.danoeh.antennapod.core.feed.FeedMedia;
 import de.danoeh.antennapod.core.feed.FeedPreferences;
+import de.danoeh.antennapod.core.feed.PodexContent;
+import de.danoeh.antennapod.core.feed.podex.PodexImage;
 import de.danoeh.antennapod.core.preferences.UserPreferences;
 import de.danoeh.antennapod.core.service.download.DownloadStatus;
 import de.danoeh.antennapod.core.util.LongIntMap;
@@ -90,6 +92,7 @@ public class PodDBAdapter {
     public static final String KEY_CONTENT_ENCODED = "content_encoded";
     public static final String KEY_PAYMENT_LINK = "payment_link";
     public static final String KEY_START = "start";
+    public static final String KEY_END = "start";
     public static final String KEY_LANGUAGE = "language";
     public static final String KEY_AUTHOR = "author";
     public static final String KEY_HAS_CHAPTERS = "has_simple_chapters";
@@ -114,6 +117,9 @@ public class PodDBAdapter {
     public static final String KEY_LAST_PLAYED_TIME = "last_played_time";
     public static final String KEY_INCLUDE_FILTER = "include_filter";
     public static final String KEY_EXCLUDE_FILTER = "exclude_filter";
+    public static final String KEY_CAPTION = "caption";
+    public static final String KEY_NOTIFICATION = "notification";
+    public static final String KEY_IS_PODEX = "is_podex_enabled";
 
     // Table names
     static final String TABLE_NAME_FEEDS = "Feeds";
@@ -124,6 +130,7 @@ public class PodDBAdapter {
     static final String TABLE_NAME_QUEUE = "Queue";
     static final String TABLE_NAME_SIMPLECHAPTERS = "SimpleChapters";
     static final String TABLE_NAME_FAVORITES = "Favorites";
+    static final String TABLE_NAME_PODEX_CONTENT = "PodexContent";
 
     // SQL Statements for creating new tables
     private static final String TABLE_PRIMARY_KEY = KEY_ID
@@ -213,6 +220,16 @@ public class PodDBAdapter {
     static final String CREATE_TABLE_FAVORITES = "CREATE TABLE "
             + TABLE_NAME_FAVORITES + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_FEEDITEM + " INTEGER," + KEY_FEED + " INTEGER)";
+
+    static final String CREATE_TABLE_PODEX_CONTENT = "CREATE TABLE "
+            + TABLE_NAME_PODEX_CONTENT + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_TYPE + " TEXT," + KEY_START + " INTEGER," + KEY_END + " INTEGER,"
+            + KEY_TITLE + " TEXT," + KEY_IMAGE_URL + " TEXT," + KEY_CAPTION + " TEXT,"
+            + KEY_NOTIFICATION + " TEXT," + KEY_FEEDITEM + " INTEGER)";
+
+    static final String CREATE_INDEX_PODEX_CONTENT_FEEDITEM = "CREATE INDEX "
+            + TABLE_NAME_PODEX_CONTENT + "_" + KEY_FEEDITEM + " ON "
+            + TABLE_NAME_SIMPLECHAPTERS + " (" + KEY_FEEDITEM + ")";
 
     /**
      * Select all columns from the feed-table
@@ -578,6 +595,8 @@ public class PodDBAdapter {
         values.put(KEY_ITEM_IDENTIFIER, item.getItemIdentifier());
         values.put(KEY_AUTO_DOWNLOAD, item.getAutoDownload());
         values.put(KEY_IMAGE_URL, item.getImageUrl());
+        values.put(KEY_IS_PODEX, (item.getPodexContentList() != null &&
+                !item.getPodexContentList().isEmpty()) || item.isPodex());
 
         if (item.getId() == 0) {
             item.setId(db.insert(TABLE_NAME_FEED_ITEMS, null, values));
@@ -591,6 +610,11 @@ public class PodDBAdapter {
         if (item.getChapters() != null) {
             setChapters(item);
         }
+
+        if (item.getPodexContentList() != null) {
+            setPodexContent(item);
+        }
+
         return item.getId();
     }
 
@@ -653,6 +677,36 @@ public class PodDBAdapter {
             } else {
                 db.update(TABLE_NAME_SIMPLECHAPTERS, values, KEY_ID + "=?",
                         new String[]{String.valueOf(chapter.getId())});
+            }
+        }
+    }
+
+    private void setPodexContent(FeedItem item) {
+        ContentValues values = new ContentValues();
+        for (PodexContent podexContent : item.getPodexContentList()) {
+            values.put(KEY_START, podexContent.getStart());
+            values.put(KEY_END, podexContent.getEnd());
+            values.put(KEY_TITLE, podexContent.getTitle());
+
+            //podex type specific data
+            if (podexContent instanceof PodexImage) {
+                PodexImage podexImage = (PodexImage) podexContent;
+                values.put(KEY_IMAGE_URL, podexImage.getHref());
+                values.put(KEY_CAPTION, podexImage.getCaption());
+                values.put(KEY_NOTIFICATION, podexImage.getNotification());
+
+                //todo type enum in PodexContent maybe
+                values.put(KEY_TYPE, "image");
+            } else {
+                values.put(KEY_TYPE, "title");
+            }
+
+            values.put(KEY_FEEDITEM, item.getId());
+            if (podexContent.getId() == 0) {
+                podexContent.setId(db.insert(TABLE_NAME_PODEX_CONTENT, null, values));
+            } else {
+                db.update(TABLE_NAME_PODEX_CONTENT, values, KEY_ID + "=?",
+                        new String[]{String.valueOf(podexContent.getId())});
             }
         }
     }
@@ -929,6 +983,13 @@ public class PodDBAdapter {
 
     public final Cursor getSimpleChaptersOfFeedItemCursor(final FeedItem item) {
         return db.query(TABLE_NAME_SIMPLECHAPTERS, null, KEY_FEEDITEM
+                        + "=?", new String[]{String.valueOf(item.getId())}, null,
+                null, null
+        );
+    }
+
+    public final Cursor getPodexContentOfFeedItemCursor(final FeedItem item) {
+        return db.query(TABLE_NAME_PODEX_CONTENT, null, KEY_FEEDITEM
                         + "=?", new String[]{String.valueOf(item.getId())}, null,
                 null, null
         );
@@ -1452,7 +1513,7 @@ public class PodDBAdapter {
      */
     private static class PodDBHelper extends SQLiteOpenHelper {
 
-        private static final int VERSION = 1060596;
+        private static final int VERSION = 1060597;
 
         private final Context context;
 
@@ -1478,6 +1539,7 @@ public class PodDBAdapter {
             db.execSQL(CREATE_TABLE_QUEUE);
             db.execSQL(CREATE_TABLE_SIMPLECHAPTERS);
             db.execSQL(CREATE_TABLE_FAVORITES);
+            db.execSQL(CREATE_TABLE_PODEX_CONTENT);
 
             db.execSQL(CREATE_INDEX_FEEDITEMS_FEED);
             db.execSQL(CREATE_INDEX_FEEDITEMS_PUBDATE);
@@ -1485,6 +1547,7 @@ public class PodDBAdapter {
             db.execSQL(CREATE_INDEX_FEEDMEDIA_FEEDITEM);
             db.execSQL(CREATE_INDEX_QUEUE_FEEDITEM);
             db.execSQL(CREATE_INDEX_SIMPLECHAPTERS_FEEDITEM);
+            db.execSQL(CREATE_INDEX_PODEX_CONTENT_FEEDITEM);
 
         }
 

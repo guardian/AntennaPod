@@ -11,6 +11,7 @@ import de.danoeh.antennapod.core.syndication.namespace.NSContent;
 import de.danoeh.antennapod.core.syndication.namespace.NSDublinCore;
 import de.danoeh.antennapod.core.syndication.namespace.NSITunes;
 import de.danoeh.antennapod.core.syndication.namespace.NSMedia;
+import de.danoeh.antennapod.core.syndication.namespace.NSPodex;
 import de.danoeh.antennapod.core.syndication.namespace.NSRSS20;
 import de.danoeh.antennapod.core.syndication.namespace.NSSimpleChapters;
 import de.danoeh.antennapod.core.syndication.namespace.Namespace;
@@ -104,10 +105,14 @@ class SyndHandler extends DefaultHandler {
 				state.namespaces.put(uri, new NSMedia());
 				Log.d(TAG, "Recognized media namespace");
 			} else if (uri.equals(NSDublinCore.NSURI)
-                    && prefix.equals(NSDublinCore.NSTAG)) {
-                state.namespaces.put(uri, new NSDublinCore());
-                Log.d(TAG, "Recognized DublinCore namespace");
-            }
+					&& prefix.equals(NSDublinCore.NSTAG)) {
+				state.namespaces.put(uri, new NSDublinCore());
+				Log.d(TAG, "Recognized DublinCore namespace");
+			} else if (uri.equals(NSPodex.NSURI)
+					&& prefix.equals(NSPodex.NSTAG)) {
+				state.namespaces.put(uri, new NSPodex());
+				Log.d(TAG, "Recognized Podex namespace");
+			}
 		}
 	}
 

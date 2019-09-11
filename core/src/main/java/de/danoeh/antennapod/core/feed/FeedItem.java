@@ -74,6 +74,12 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
     private List<Chapter> chapters;
     private String imageUrl;
 
+    /**
+     * Is this feed item Podex enabled
+     */
+    private final boolean isPodex;
+    private List<PodexContent> podexContentList;
+
     /*
      *   0: auto download disabled
      *   1: auto download enabled (default)
@@ -90,6 +96,7 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
     public FeedItem() {
         this.state = UNPLAYED;
         this.hasChapters = false;
+        this.isPodex = false;
     }
 
     /**
@@ -97,7 +104,7 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
      * */
     public FeedItem(long id, String title, String link, Date pubDate, String paymentLink, long feedId,
                     boolean hasChapters, String imageUrl, int state,
-                    String itemIdentifier, long autoDownload) {
+                    String itemIdentifier, long autoDownload, boolean isPodex) {
         this.id = id;
         this.title = title;
         this.link = link;
@@ -109,6 +116,7 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
         this.state = state;
         this.itemIdentifier = itemIdentifier;
         this.autoDownload = autoDownload;
+        this.isPodex = isPodex;
     }
 
     /**
@@ -123,6 +131,7 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
         this.state = state;
         this.feed = feed;
         this.hasChapters = false;
+        this.isPodex = false;
     }
 
     /**
@@ -137,7 +146,9 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
         this.state = state;
         this.feed = feed;
         this.hasChapters = hasChapters;
+        this.isPodex = false;
     }
+
 
     public static FeedItem fromCursor(Cursor cursor) {
         int indexId = cursor.getColumnIndex(PodDBAdapter.KEY_ID);
@@ -151,6 +162,7 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
         int indexItemIdentifier = cursor.getColumnIndex(PodDBAdapter.KEY_ITEM_IDENTIFIER);
         int indexAutoDownload = cursor.getColumnIndex(PodDBAdapter.KEY_AUTO_DOWNLOAD);
         int indexImageUrl = cursor.getColumnIndex(PodDBAdapter.KEY_IMAGE_URL);
+        int indexIsPodex = cursor.getColumnIndex(PodDBAdapter.KEY_IS_PODEX);
 
         long id = cursor.getInt(indexId);
         String title = cursor.getString(indexTitle);
@@ -163,9 +175,11 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
         String itemIdentifier = cursor.getString(indexItemIdentifier);
         long autoDownload = cursor.getLong(indexAutoDownload);
         String imageUrl = cursor.getString(indexImageUrl);
+        boolean isPodex = cursor.getInt(indexIsPodex) > 0;
 
+        //Todo add podex flag and attributes to DB
         return new FeedItem(id, title, link, pubDate, paymentLink, feedId,
-                hasChapters, imageUrl, state, itemIdentifier, autoDownload);
+                hasChapters, imageUrl, state, itemIdentifier, autoDownload, isPodex);
     }
 
     public void updateFromOther(FeedItem other) {
@@ -384,6 +398,10 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
         }
     }
 
+    public boolean isPodex() {
+        return isPodex;
+    }
+
     public enum State {
         UNREAD, IN_PROGRESS, READ, PLAYING
     }
@@ -481,5 +499,13 @@ public class FeedItem extends FeedComponent implements ShownotesProvider, ImageR
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
+    public List<PodexContent> getPodexContentList() {
+        return podexContentList;
+    }
+
+    public void setPodexContentList(List<PodexContent> podexContentList) {
+        this.podexContentList = podexContentList;
     }
 }
