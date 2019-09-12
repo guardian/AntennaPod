@@ -163,7 +163,7 @@ public class PodDBAdapter {
             + KEY_MEDIA + " INTEGER," + KEY_FEED + " INTEGER,"
             + KEY_HAS_CHAPTERS + " INTEGER," + KEY_ITEM_IDENTIFIER + " TEXT,"
             + KEY_IMAGE_URL + " TEXT,"
-            + KEY_AUTO_DOWNLOAD + " INTEGER," + KEY_IS_PODEX + " INTEGER)";
+            + KEY_AUTO_DOWNLOAD + " INTEGER," + KEY_IS_PODEX + " INTEGER DEFAULT 0)";
 
     private static final String CREATE_TABLE_FEED_MEDIA = "CREATE TABLE "
             + TABLE_NAME_FEED_MEDIA + " (" + TABLE_PRIMARY_KEY + KEY_DURATION
@@ -279,7 +279,8 @@ public class PodDBAdapter {
             TABLE_NAME_FEED_ITEMS + "." + KEY_HAS_CHAPTERS,
             TABLE_NAME_FEED_ITEMS + "." + KEY_ITEM_IDENTIFIER,
             TABLE_NAME_FEED_ITEMS + "." + KEY_IMAGE_URL,
-            TABLE_NAME_FEED_ITEMS + "." + KEY_AUTO_DOWNLOAD
+            TABLE_NAME_FEED_ITEMS + "." + KEY_AUTO_DOWNLOAD,
+            TABLE_NAME_FEED_ITEMS + "." + KEY_IS_PODEX
     };
 
     /**
@@ -1513,7 +1514,7 @@ public class PodDBAdapter {
      */
     private static class PodDBHelper extends SQLiteOpenHelper {
 
-        private static final int VERSION = 1060598;
+        private static final int VERSION = 1060599;
 
         private final Context context;
 

@@ -288,6 +288,13 @@ class DBUpgrader {
 
             db.execSQL("DROP TABLE " + PodDBAdapter.TABLE_NAME_FEED_IMAGES);
         }
+        if (oldVersion < 1060599) {
+            db.execSQL("ALTER TABLE " + PodDBAdapter.TABLE_NAME_FEEDS
+                    + " ADD COLUMN " + PodDBAdapter.KEY_IS_PODEX + " INTEGER DEFAULT 0");
+            db.execSQL(PodDBAdapter.CREATE_TABLE_PODEX_CONTENT);
+            db.execSQL(PodDBAdapter.CREATE_INDEX_PODEX_CONTENT_FEEDITEM);
+
+        }
     }
 
 }
