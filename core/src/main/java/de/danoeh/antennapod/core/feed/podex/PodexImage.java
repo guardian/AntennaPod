@@ -10,6 +10,19 @@ public class PodexImage extends PodexContent {
     String caption;
     String notification;
 
+    /**
+     * Constructor for namespace
+     */
+    public PodexImage(String href) {
+        super();
+        this.href = href;
+        this.caption = "";
+        this.notification = "";
+    }
+
+    /**
+     * Constructor for DB
+     */
     public PodexImage(long start, long end, String title, String href, String caption, String notification) {
         super(start, end, title);
         this.href = href;

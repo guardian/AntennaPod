@@ -12,7 +12,7 @@ public abstract class PodexContent extends FeedComponent {
 
     String title;
 
-    PodexContent() {
+    public PodexContent() {
         start = 0;
         end = MAX_VALUE;
         title = "";

@@ -8,6 +8,7 @@ import java.util.Stack;
 
 import de.danoeh.antennapod.core.feed.Feed;
 import de.danoeh.antennapod.core.feed.FeedItem;
+import de.danoeh.antennapod.core.feed.PodexContent;
 import de.danoeh.antennapod.core.syndication.namespace.Namespace;
 import de.danoeh.antennapod.core.syndication.namespace.SyndElement;
 
@@ -44,6 +45,13 @@ public class HandlerState {
      */
     private final Map<String, Object> tempObjects;
 
+
+    /**
+     * Temporarily saved podex content, initially only 1 valid podexContent will be placed in the
+     * stack
+     */
+    final Stack<PodexContent> podexContentStack;
+
     public HandlerState(Feed feed) {
         this.feed = feed;
         alternateUrls = new ArrayMap<>();
@@ -52,6 +60,7 @@ public class HandlerState {
         namespaces = new ArrayMap<>();
         defaultNamespaces = new Stack<>();
         tempObjects = new ArrayMap<>();
+        podexContentStack = new Stack<>();
     }
 
     public Feed getFeed() {
@@ -107,5 +116,9 @@ public class HandlerState {
 
     public Map<String, Object> getTempObjects() {
         return tempObjects;
+    }
+
+    public Stack<PodexContent> getPodexContentStack() {
+        return podexContentStack;
     }
 }

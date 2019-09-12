@@ -92,7 +92,7 @@ public class PodDBAdapter {
     public static final String KEY_CONTENT_ENCODED = "content_encoded";
     public static final String KEY_PAYMENT_LINK = "payment_link";
     public static final String KEY_START = "start";
-    public static final String KEY_END = "start";
+    public static final String KEY_END = "end";
     public static final String KEY_LANGUAGE = "language";
     public static final String KEY_AUTHOR = "author";
     public static final String KEY_HAS_CHAPTERS = "has_simple_chapters";
@@ -163,7 +163,7 @@ public class PodDBAdapter {
             + KEY_MEDIA + " INTEGER," + KEY_FEED + " INTEGER,"
             + KEY_HAS_CHAPTERS + " INTEGER," + KEY_ITEM_IDENTIFIER + " TEXT,"
             + KEY_IMAGE_URL + " TEXT,"
-            + KEY_AUTO_DOWNLOAD + " INTEGER)";
+            + KEY_AUTO_DOWNLOAD + " INTEGER," + KEY_IS_PODEX + " INTEGER)";
 
     private static final String CREATE_TABLE_FEED_MEDIA = "CREATE TABLE "
             + TABLE_NAME_FEED_MEDIA + " (" + TABLE_PRIMARY_KEY + KEY_DURATION
@@ -1513,7 +1513,7 @@ public class PodDBAdapter {
      */
     private static class PodDBHelper extends SQLiteOpenHelper {
 
-        private static final int VERSION = 1060597;
+        private static final int VERSION = 1060598;
 
         private final Context context;
 
