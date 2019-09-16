@@ -465,6 +465,7 @@ public class PlaybackController {
                 }
                 setupPositionObserver();
                 updatePlayButtonAppearance(pauseResource, pauseText);
+                onPlaybackResumed();
                 break;
             case PREPARING:
                 postStatusMsg(R.string.player_preparing_msg, false);
@@ -523,6 +524,8 @@ public class PlaybackController {
     }
 
     public  void onAwaitingVideoSurface()  {}
+
+    public void onPlaybackResumed() {}
 
     /**
      * Called when connection to playback service has been established or

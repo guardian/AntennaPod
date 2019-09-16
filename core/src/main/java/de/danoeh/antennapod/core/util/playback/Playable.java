@@ -13,6 +13,7 @@ import de.danoeh.antennapod.core.asynctask.ImageResource;
 import de.danoeh.antennapod.core.feed.Chapter;
 import de.danoeh.antennapod.core.feed.FeedMedia;
 import de.danoeh.antennapod.core.feed.MediaType;
+import de.danoeh.antennapod.core.feed.PodexContent;
 import de.danoeh.antennapod.core.preferences.PlaybackPreferences;
 import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.util.ShownotesProvider;
@@ -35,7 +36,7 @@ public interface Playable extends Parcelable,
      * This method is called from a separate thread by the PlaybackService.
      * Playable objects should load their metadata in this method. This method
      * should execute as quickly as possible and NOT load chapter marks if no
-     * local file is available.
+     * local file is available, same goes for podex content.
      */
     void loadMetadata() throws PlayableException;
 
@@ -55,6 +56,8 @@ public interface Playable extends Parcelable,
      * Returns a list of chapter marks or null if this Playable has no chapters.
      */
     List<Chapter> getChapters();
+
+    List<PodexContent> getPodexContent();
 
     /**
      * Returns a link to a website that is meant to be shown in a browser

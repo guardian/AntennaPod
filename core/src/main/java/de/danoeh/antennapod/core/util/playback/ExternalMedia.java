@@ -12,6 +12,7 @@ import java.util.concurrent.Callable;
 
 import de.danoeh.antennapod.core.feed.Chapter;
 import de.danoeh.antennapod.core.feed.MediaType;
+import de.danoeh.antennapod.core.feed.PodexContent;
 import de.danoeh.antennapod.core.util.ChapterUtils;
 
 /** Represents a media file that is stored on the local storage device. */
@@ -113,6 +114,11 @@ public class ExternalMedia implements Playable {
 	@Override
 	public List<Chapter> getChapters() {
 		return chapters;
+	}
+
+	@Override
+	public List<PodexContent> getPodexContent() {
+		return null;
 	}
 
 	@Override

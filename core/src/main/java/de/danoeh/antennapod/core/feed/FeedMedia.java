@@ -428,6 +428,14 @@ public class FeedMedia extends FeedFile implements Playable {
     }
 
     @Override
+    public List<PodexContent> getPodexContent() {
+        if (item == null) {
+            return null;
+        }
+        return item.getPodexContentList();
+    }
+
+    @Override
     public String getWebsiteLink() {
         if (item == null) {
             return null;
